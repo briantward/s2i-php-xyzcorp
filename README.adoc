@@ -1,10 +1,14 @@
 = Extend Red Hat base s2i builder image
 
+This is a quick tutorial for those moments you need to tweak something in an otherwise perfectly fine Red Hat s2i image.  
+
+ https://github.com/openshift/source-to-image
+
 == Create a Dockerfile with your needs.  
 
 You will need to "escalate" its user to root, perform your needed operations, then return the user back to its previous state.
 
-In this example, I am extending the base php image
+In this example, I am extending the base php image by using a simple Dockerfile.  There are situations where it may make sense to extend the image further using the s2i process itself, but this tutorial won't cover that. 
 
  registry.access.redhat.com/rhscl/php-70-rhel7
 
@@ -16,7 +20,7 @@ Inspecting the above Dockerfile shows we should make the user be 1001 again.
 
  https://github.com/sclorg/s2i-php-container/blob/master/7.0/Dockerfile.rhel7#L77
 
-Our final Dockerfile looks like this:
+For this example, we'll comment out one of the LoadModule apache directives responsible for loading the HTTP2 behavior.  Our final Dockerfile looks like this:
 
 [source]
 ----
@@ -35,9 +39,9 @@ If you are concerned about security in your environment, and you only want a spe
 
  $ oc new-project xyzcorp-s2i-builds
 
-The next step is allowing the builder serviceaccount to use root permissions:
+The next step is allowing the builder serviceaccount to use root permissions, by adding the security context constraint `anyuid` to the service account `builder` in your project `xyzcorp-s2i-builds`:
 
- $ oc adm policy add-scc-to-user anyuid -z builder -n my-blog
+ $ oc adm policy add-scc-to-user anyuid -z builder -n xyzcorp-s2i-builds
 
 Finally, in the root directory of your Dockerfile on your local (you can do this other ways from git):
 
