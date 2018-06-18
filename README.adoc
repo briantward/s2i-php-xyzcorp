@@ -1,0 +1,48 @@
+= Extend Red Hat base s2i builder image
+
+== Create a Dockerfile with your needs.  
+
+You will need to "escalate" its user to root, perform your needed operations, then return the user back to its previous state.
+
+In this example, I am extending the base php image
+
+ registry.access.redhat.com/rhscl/php-70-rhel7
+
+This image, is in turn, based off
+
+ https://github.com/sclorg/s2i-php-container/blob/master/7.0/Dockerfile.rhel7
+
+Inspecting the above Dockerfile shows we should make the user be 1001 again.  
+
+ https://github.com/sclorg/s2i-php-container/blob/master/7.0/Dockerfile.rhel7#L77
+
+Our final Dockerfile looks like this:
+
+[source]
+----
+FROM registry.access.redhat.com/rhscl/php-70-rhel7
+
+USER 0
+
+RUN sed -e '/mod_http2/ s/^#*/#/' -i /etc/httpd/conf.modules.d/00-base.conf
+
+USER 1001
+----
+
+== Modify builder permissions in your project
+
+If you are concerned about security in your environment, and you only want a specific group to be allowed to build images with root access modifications, then you should consider creating security procedures around this process.  Having a specific OpenShift project with limited user access would be a start.  
+
+ $ oc new-project xyzcorp-s2i-builds
+
+The next step is allowing the builder serviceaccount to use root permissions:
+
+ $ oc adm policy add-scc-to-user anyuid -z builder -n my-blog
+
+Finally, in the root directory of your Dockerfile on your local (you can do this other ways from git):
+
+ $ oc new-build . --name s2i-php-xyzcorp
+
+ $ oc start-build s2i-php-xyzcorp --from-dir .
+
+Now you can go edit any existing buildconfig that is using the php image with your new corporate build.
