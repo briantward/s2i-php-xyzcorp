@@ -2,7 +2,7 @@
 
 This is a quick tutorial for those moments you need to tweak something in an otherwise perfectly fine Red Hat s2i image.  
 
- https://github.com/openshift/source-to-image
+https://github.com/openshift/source-to-image
 
 == Create a Dockerfile with your needs.  
 
@@ -14,11 +14,11 @@ In this example, I am extending the base php image by using a simple Dockerfile.
 
 This image, is in turn, based off
 
- https://github.com/sclorg/s2i-php-container/blob/master/7.0/Dockerfile.rhel7
+https://github.com/sclorg/s2i-php-container/blob/master/7.0/Dockerfile.rhel7
 
 Inspecting the above Dockerfile shows we should make the user be 1001 again.  
 
- https://github.com/sclorg/s2i-php-container/blob/master/7.0/Dockerfile.rhel7#L77
+https://github.com/sclorg/s2i-php-container/blob/master/7.0/Dockerfile.rhel7#L77
 
 For this example, we'll comment out one of the LoadModule apache directives responsible for loading the HTTP2 behavior.  Our final Dockerfile looks like this:
 
